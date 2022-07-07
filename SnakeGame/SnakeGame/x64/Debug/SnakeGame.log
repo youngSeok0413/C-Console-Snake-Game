@@ -1,0 +1,4 @@
+﻿  main.cpp
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(9,15): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(9,18): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
+  SnakeGame.vcxproj -> D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\x64\Debug\SnakeGame.exe
