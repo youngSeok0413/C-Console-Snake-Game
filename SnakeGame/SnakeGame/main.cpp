@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <Windows.h>
+#include <stack>
 
-#define BLOCK '#'
+#define WALL '#'
 #define SNAKE '$'
 #define FRUIT '@'
+#define BLANK ' '
 #define STAGESZ 50
 
 struct BlockInfo {
@@ -11,6 +13,17 @@ struct BlockInfo {
 	unsigned int PrevPositions[2];
 	int Vectors[2];
 	char BlockType;
+};
+
+struct BlockToDrawInfo {
+	unsigned int X;
+	unsigned int Y;
+	char BlockType;
+};
+
+struct BlockToEraseInfo {
+	unsigned int X;
+	unsigned int Y;
 };
 
 class ObjectPhysics {
@@ -71,7 +84,7 @@ public:
 		this->blockWallBoundaryCheck();
 	}
 
-	void blockMoveDown() {
+	void blockMoveUp() {
 		this->Block.PrevPositions[0] = this->Block.Positions[0];
 		this->Block.PrevPositions[1] = this->Block.Positions[1];
 
@@ -122,18 +135,72 @@ public:
 	BlockInfo getBlockInfo() {
 		return this->Block;
 	}
+
 };
 
 class Renderer{
+private:
+	std::stack<BlockToDrawInfo> toDraw;
+	std::stack<BlockToEraseInfo> toErase;
 public:
+	Renderer() {
+		for (unsigned int i = 0; i < 2 + STAGESZ; i++) {
+			for (unsigned int j = 0; j < 2 + STAGESZ; j++) {
+				if (i == 0) {
+					toDraw.push({i, j, WALL});
+				}
+				else if (i == 1+STAGESZ) {
+					toDraw.push({ i, j, WALL });
+				}
+				else {
+					if (j == 0) {
+						toDraw.push({ i, j, WALL });
+					}
+					else if (j == 1 + STAGESZ) {
+						toDraw.push({ i, j, WALL });
+					}
+				}
+			}
+		}
+	}
+
 	void gotoXY(unsigned int x, unsigned int y) {
 		COORD pos = { x, y };
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	}
+
+	void printBlock(BlockToDrawInfo info) {
+		gotoXY(info.X, info.Y);
+		printf("%c", info.BlockType);
+	}
+
+	void eraseBlock(BlockToEraseInfo info) {
+		gotoXY(info.X, info.Y);
+		printf("%c", BLANK);
+	}
+
+	void updateStacks(BlockInfo& info) {
+		this->toDraw.push({info.Positions[0], info.Positions[1], info.BlockType});
+		this->toErase.push({info.PrevPositions[0], info.PrevPositions[1]});
+	}
+
+	void updateScreen() {
+
+		while (!this->toErase.empty()) {
+			this->eraseBlock(this->toErase.top());
+			this->toDraw.pop();
+		}
+
+		while (!this->toDraw.empty()) {
+			this->printBlock(this->toDraw.top());
+			this->toDraw.pop();
+		}
+	}
 };
 
 int main() {
-
+	Renderer ren;
+	ren.updateScreen();
 	
 	return 0;
 }
