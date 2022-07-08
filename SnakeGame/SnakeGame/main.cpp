@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <Windows.h>
+//#include <time.h>
 #include <stack>
 
 #define WALL '#'
@@ -33,6 +34,10 @@ public:
 	ObjectPhysics(char blockType ,unsigned int x, unsigned int y) {
 		this->Block.Positions[0] = x;
 		this->Block.Positions[1] = y;
+		this->Block.PrevPositions[0] = 0;
+		this->Block.PrevPositions[1] = 0;
+		this->Block.Vectors[0] = 0;
+		this->Block.Vectors[1] = 1;
 		this->Block.BlockType = blockType;
 	}
 	
@@ -138,6 +143,33 @@ public:
 
 };
 
+class Fruit : public ObjectPhysics{
+private : 
+	unsigned int Fx;
+	unsigned int Fy;
+public :
+	Fruit(unsigned int x, unsigned int y) : ObjectPhysics(FRUIT, x, y) {
+		this->Fx = 0;
+		this->Fy = 0;
+	}
+
+	void getRandomPos() {
+		this->Fx = rand()%(1+STAGESZ);
+		this->Fy = rand()%(1+STAGESZ);
+
+		if (this->Fx == 0)
+			Fx++;
+
+		if (this->Fy == 0)
+			Fy++;
+	}
+
+	void moveRandomly() {
+		this->getRandomPos();
+		this->setBlockPos(this->Fx, this->Fy);
+	}
+};
+
 class Renderer{
 private:
 	std::stack<BlockToDrawInfo> toDraw;
@@ -185,10 +217,9 @@ public:
 	}
 
 	void updateScreen() {
-
 		while (!this->toErase.empty()) {
 			this->eraseBlock(this->toErase.top());
-			this->toDraw.pop();
+			this->toErase.pop();
 		}
 
 		while (!this->toDraw.empty()) {
@@ -199,8 +230,19 @@ public:
 };
 
 int main() {
-	Renderer ren;
-	ren.updateScreen();
 	
+	Fruit fruit(5, 5);
+	Renderer ren;
+	BlockInfo buffer;
+	buffer = fruit.getBlockInfo();
+	ren.updateStacks(buffer);
+
+	while (1) {
+		ren.updateScreen();
+		fruit.moveRandomly();
+		buffer = fruit.getBlockInfo();
+		ren.updateStacks(buffer);
+		Sleep(1000);
+	}
 	return 0;
 }
