@@ -34,8 +34,8 @@ public:
 	ObjectPhysics(char blockType ,unsigned int x, unsigned int y) {
 		this->Block.Positions[0] = x;
 		this->Block.Positions[1] = y;
-		this->Block.PrevPositions[0] = STAGESZ + 10;
-		this->Block.PrevPositions[1] = STAGESZ + 10;
+		this->Block.PrevPositions[0] = STAGESZ + 2;
+		this->Block.PrevPositions[1] = STAGESZ + 2;
 		this->Block.Vectors[0] = 0;
 		this->Block.Vectors[1] = 0;
 		this->Block.BlockType = blockType;
@@ -123,9 +123,7 @@ public:
 			this->Block.Positions[1] = STAGESZ;
 	}
 
-	bool whetherBlockCollide(ObjectPhysics& other) {
-
-		BlockInfo buffer = other.getBlockInfo();
+	bool whetherBlockCollide(BlockInfo block) {
 
 		int expectedPos[2] = {this->Block.Positions[0] + this->Block.Vectors[0],
 			this->Block.Positions[1] + this->Block.Vectors[1] };
@@ -140,8 +138,8 @@ public:
 		else if (expectedPos[1] < 1)
 			expectedPos[1] = STAGESZ;
 
-		if (expectedPos[0] == buffer.Positions[0])
-			if (expectedPos[1] == buffer.Positions[1])
+		if (expectedPos[0] == block.Positions[0])
+			if (expectedPos[1] == block.Positions[1])
 				return true;
 		return false;
 
@@ -159,8 +157,10 @@ private:
 	std::list<ObjectPhysics> snake;
 public:
 	Snake() {
-		this->snake.push_back(ObjectPhysics(SNAKE, 5, 5));
+		this->snake.push_back(ObjectPhysics(SNAKE, 10, 10));
 		this->snake.begin()->blockMoveUp();
+		this->snakeGrow();
+		this->snakeGrow();
 	}
 
 	void snakeGrow() {
@@ -188,6 +188,81 @@ public:
 		}
 	}
 
+	void snakeGoToUp() {
+		BlockInfo blockInfoBuffer;
+		
+		this->snake.begin()->blockMoveUp();
+		blockInfoBuffer = this->snake.begin()->getBlockInfo();
+		std::list<ObjectPhysics>::iterator iter = this->snake.begin();
+		iter++;
+		for (;iter != this->snake.end(); iter++) {
+			iter->setBlockPos(blockInfoBuffer.PrevPositions[0], blockInfoBuffer.PrevPositions[1]);
+			blockInfoBuffer = iter->getBlockInfo();
+		}
+	}
+
+	void snakeGoToDown() {
+		BlockInfo blockInfoBuffer;
+
+		this->snake.begin()->blockMoveDown();
+		blockInfoBuffer = this->snake.begin()->getBlockInfo();
+		std::list<ObjectPhysics>::iterator iter = this->snake.begin();
+		iter++;
+		for (; iter != this->snake.end(); iter++) {
+			iter->setBlockPos(blockInfoBuffer.PrevPositions[0], blockInfoBuffer.PrevPositions[1]);
+			blockInfoBuffer = iter->getBlockInfo();
+		}
+	}
+
+	void snakeGoToRight() {
+		BlockInfo blockInfoBuffer;
+
+		this->snake.begin()->blockMoveRight();
+		blockInfoBuffer = this->snake.begin()->getBlockInfo();
+		std::list<ObjectPhysics>::iterator iter = this->snake.begin();
+		iter++;
+		for (; iter != this->snake.end(); iter++) {
+			iter->setBlockPos(blockInfoBuffer.PrevPositions[0], blockInfoBuffer.PrevPositions[1]);
+			blockInfoBuffer = iter->getBlockInfo();
+		}
+	}
+
+	void snakeGoToLeft() {
+		BlockInfo blockInfoBuffer;
+
+		this->snake.begin()->blockMoveLeft();
+		blockInfoBuffer = this->snake.begin()->getBlockInfo();
+		std::list<ObjectPhysics>::iterator iter = this->snake.begin();
+		iter++;
+		for (; iter != this->snake.end(); iter++) {
+			iter->setBlockPos(blockInfoBuffer.PrevPositions[0], blockInfoBuffer.PrevPositions[1]);
+			blockInfoBuffer = iter->getBlockInfo();
+		}
+	}
+
+	bool wheterSnakeEatFruit(BlockInfo fruit) {
+		if (this->snake.begin()->whetherBlockCollide(fruit)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	bool whetherSnakeGameOver() {
+		ObjectPhysics head = *(this->snake.begin());
+
+		std::list<ObjectPhysics>::iterator iter = this->snake.begin();
+		iter++;
+
+		for (; iter != this->snake.end(); iter++) {
+			if (head.whetherBlockCollide(iter->getBlockInfo())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	std::stack<BlockInfo> getSnakeInfo() {
 		std::stack<BlockInfo> buffer;
 		
@@ -197,6 +272,10 @@ public:
 
 		return buffer;
 	}
+
+	BlockInfo getSnakeHead() {
+		return this->snake.front().getBlockInfo();
+	}
 };
 
 class Fruit : public ObjectPhysics{
@@ -204,7 +283,7 @@ private :
 	unsigned int Fx;
 	unsigned int Fy;
 public :
-	Fruit(unsigned int x, unsigned int y) : ObjectPhysics(FRUIT, x, y) {
+	Fruit(unsigned int x = 20, unsigned int y = 20) : ObjectPhysics(FRUIT, x, y) {
 		this->Fx = 0;
 		this->Fy = 0;
 	}
@@ -220,11 +299,9 @@ public :
 			Fy++;
 	}
 
-	void moveRandomly(bool snakeAteFruit) {
-		if (snakeAteFruit) {
-			this->getRandomPos();
-			this->setBlockPos(this->Fx, this->Fy);
-		}
+	void moveRandomly() {
+		this->getRandomPos();
+		this->setBlockPos(this->Fx, this->Fy);
 	}
 };
 
@@ -234,6 +311,9 @@ private:
 	std::stack<BlockToEraseInfo> toErase;
 public:
 	Renderer() {
+
+		this->CursorView();
+
 		for (unsigned int i = 0; i < 2 + STAGESZ; i++) {
 			for (unsigned int j = 0; j < 2 + STAGESZ; j++) {
 				if (i == 0) {
@@ -252,6 +332,14 @@ public:
 				}
 			}
 		}
+	}
+
+	void CursorView()
+	{
+		CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+		cursorInfo.dwSize = 1; 
+		cursorInfo.bVisible = FALSE; 
+		SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 	}
 
 	void gotoXY(unsigned int x, unsigned int y) {
@@ -286,8 +374,9 @@ public:
 		}
 	}
 
-	void updateScreen(std::stack<BlockInfo> snake){
+	void updateScreen(std::stack<BlockInfo> snake, BlockInfo fruit){
 		this->updateSnakeStack(snake);
+		this->updateFruitStack(fruit);
 
 		while (!this->toErase.empty()) {
 			this->eraseBlock(this->toErase.top());
@@ -309,17 +398,61 @@ public:
 	}
 };
 
-int main() {
-	Fruit fruit(5,5);
+class Game {
+private:
 	Snake snake;
+	Fruit fruit;
 	Renderer ren;
-	BlockInfo buffer;
+public:
+	Game() {
+		this->snake = Snake();
+		this->fruit = Fruit();
+		this->ren = Renderer();
 
-	while (1) {
-		ren.updateScreen(snake.getSnakeInfo());
-		snake.snakeGrow();
-		Sleep(500);
+		while (!this->snake.whetherSnakeGameOver()) {
+			this->snakeControll();
+			this->showIt();
+			Sleep(200);
+		}
+
+		this->ren.gotoXY(0, STAGESZ + 2);
+		printf("Game Over!!");
 	}
-	
+
+	void snakeControll() {
+		if (GetAsyncKeyState(VK_UP))
+			this->snake.snakeGoToUp();
+		else if (GetAsyncKeyState(VK_DOWN))
+			this->snake.snakeGoToDown();
+		else if (GetAsyncKeyState(VK_RIGHT))
+			this->snake.snakeGoToRight();
+		else if (GetAsyncKeyState(VK_LEFT))
+			this->snake.snakeGoToLeft();
+		else {
+			BlockInfo snkHead = this->snake.getSnakeHead();
+			if (snkHead.Vectors[0] == 1)
+				this->snake.snakeGoToRight();
+			if (snkHead.Vectors[0] == -1)
+				this->snake.snakeGoToLeft();
+			if (snkHead.Vectors[1] == 1)
+				this->snake.snakeGoToDown();
+			if (snkHead.Vectors[1] == -1)
+				this->snake.snakeGoToUp();
+		}
+
+		if (this->snake.wheterSnakeEatFruit(this->fruit.getBlockInfo())) {
+			this->fruit.moveRandomly();
+			this->snake.snakeGrow();
+		}
+	}
+
+	void showIt() {
+		ren.updateScreen(this->snake.getSnakeInfo(), this->fruit.getBlockInfo());
+	}
+
+};
+
+int main() {
+	Game();
 	return 0;
 }

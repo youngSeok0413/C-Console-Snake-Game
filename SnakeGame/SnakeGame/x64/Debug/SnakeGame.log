@@ -1,7 +1,6 @@
 ﻿  main.cpp
-D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(130,50): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
-D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(131,29): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
-D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(258,17): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
-D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(258,20): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
-D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(316,12): warning C4101: 'buffer': unreferenced local variable
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(128,50): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(129,29): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(346,17): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
+D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\SnakeGame\main.cpp(346,20): warning C4838: conversion from 'unsigned int' to 'SHORT' requires a narrowing conversion
   SnakeGame.vcxproj -> D:\GitRepo\C-Console-Snake-Game\C-Console-Snake-Game\SnakeGame\x64\Debug\SnakeGame.exe
