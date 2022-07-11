@@ -415,7 +415,7 @@ public:
 		while (!this->snake.whetherSnakeGameOver()) {
 			this->snakeControll();
 			this->showIt();
-			Sleep(200 + this->harder < 50 ? 50 : (100 + this->harder));
+			Sleep(200 + this->harder < 50 ? 50 : (200 + this->harder));
 		}
 
 		this->ren.gotoXY(0, STAGESZ + 2);
