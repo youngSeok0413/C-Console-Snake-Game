@@ -403,16 +403,19 @@ private:
 	Snake snake;
 	Fruit fruit;
 	Renderer ren;
+	int harder;
+	
 public:
 	Game() {
 		this->snake = Snake();
 		this->fruit = Fruit();
 		this->ren = Renderer();
+		
 
 		while (!this->snake.whetherSnakeGameOver()) {
 			this->snakeControll();
 			this->showIt();
-			Sleep(200);
+			Sleep(200 + this->harder < 50 ? 50 : (100 + this->harder));
 		}
 
 		this->ren.gotoXY(0, STAGESZ + 2);
@@ -443,6 +446,7 @@ public:
 		if (this->snake.wheterSnakeEatFruit(this->fruit.getBlockInfo())) {
 			this->fruit.moveRandomly();
 			this->snake.snakeGrow();
+			this->harder--;
 		}
 	}
 
